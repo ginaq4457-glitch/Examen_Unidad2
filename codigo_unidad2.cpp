@@ -3,10 +3,9 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
-
 using namespace std;
 
-// ================= CLASE LIBRO =================
+//  CLASE LIBRO 
 class Libro {
 private:
     string codigo, titulo, area, estado;
@@ -21,22 +20,20 @@ public:
     string getTitulo(){ return titulo; }
     string getArea(){ return area; }
     int getDisponibles(){ return disponibles; }
-    
-    void setDisponibles(int d){ 
-        disponibles = d; 
-        estado = (disponibles > 0) ? "Disponible" : "Agotado";
-    }
+    int getDemanda(){ return ejemplares - disponibles; }
+
+    void setDisponibles(int d){ disponibles=d; }
 
     void mostrar(){
-        cout << "Cod: " << codigo 
-             << "\t| Titulo: " << titulo 
-             << "\t| Area: " << area 
-             << "\t| Disp: " << disponibles 
-             << "\t| Est: " << estado << endl;
+        cout<<"Codigo: "<<codigo
+            <<" | Titulo: "<<titulo
+            <<" | Area: "<<area
+            <<" | Disponibles: "<<disponibles
+            <<" | Estado: "<<estado<<endl;
     }
 };
 
-// ================= CLASE PRESTAMO =================
+// Aplicamos otra clase llamada prestamo
 class PrestamoBiblioteca {
 private:
     string codigoLibro, cedula;
@@ -50,190 +47,248 @@ public:
 
     string getCedula(){ return cedula; }
     double getMulta(){ return multa; }
-    bool isDevuelto(){ return devuelto; }
 
     void setMulta(double m){ multa=m; }
-    void setDevuelto(bool d){ devuelto = d; }
+    void setDevuelto(bool d){ devuelto=d; }
 
     void mostrar(){
-        cout << "Libro: " << codigoLibro 
-             << "\t| Cedula: " << cedula 
-             << "\t| Multa: $" << multa 
-             << "\t| Devuelto: " << (devuelto ? "Si" : "No") 
-             << "\t| Reserva: " << (reservado ? "Si" : "No") << endl;
+        cout<<"Libro: "<<codigoLibro
+            <<" | Cedula: "<<cedula
+            <<" | Multa: $"<<multa
+            <<" | Devuelto: "<<(devuelto?"Si":"No")
+            <<" | Reserva: "<<(reservado?"Si":"No")<<endl;
     }
 };
 
-// ================= FUNCIONES DE VALIDACION Y LOGICA =================
+// Aplicamos las FUNCIONES
 
-bool validarCedula(string cedula) {
-    if (cedula.length() != 10) return false;
-    for (char c : cedula) {
-        if (!isdigit(c)) return false;
-    }
-    return true;
-}
-
-// CORRECCION DEL FRAGMENTO DEFECTUOSO
 bool prestarLibro(int disponibles, bool bloqueado){
     return (disponibles > 0 && !bloqueado);
 }
 
 double calcularMulta(int retraso){
-    return retraso * 0.75; 
+    return retraso * 0.75;
 }
 
-// RECURSIVIDAD: Suma de multas
-double totalMultasRecursivo(vector<PrestamoBiblioteca>& p, int i){
-    if(i >= (int)p.size()) return 0;
-    return p[i].getMulta() + totalMultasRecursivo(p, i+1);
+// usamos RECURSIVIDAD
+double totalMultas(vector<PrestamoBiblioteca>& p, int i){
+    if(i >= p.size()) return 0;
+    return p[i].getMulta() + totalMultas(p, i+1);
+}
+// Aplicamos un metodo  BURBUJA
+void ordenarMultas(vector<PrestamoBiblioteca>& p){
+    for(int i=0;i<p.size();i++)
+        for(int j=0;j<p.size()-1;j++)
+            if(p[j].getMulta() < p[j+1].getMulta())
+                swap(p[j],p[j+1]);
 }
 
-// ORDENAMIENTO BURBUJA MANUAL
-void ordenarPorMulta(vector<PrestamoBiblioteca>& p){
-    int n = p.size();
-    for(int i = 0; i < n - 1; i++){
-        for(int j = 0; j < n - i - 1; j++){
-            if(p[j].getMulta() < p[j+1].getMulta()){
-                swap(p[j], p[j+1]);
-            }
-        }
+// opción para buscar
+void buscarLibro(vector<Libro>& l){
+    int op;
+    cout<<"1. Codigo   2. Titulo: ";
+    cin>>op;
+
+    if(op==1){
+        string c;
+        cout<<"Codigo: ";
+        cin>>c;
+        for(auto x:l) if(x.getCodigo()==c) x.mostrar();
+    }else{
+        string t;
+        cout<<"Titulo: ";
+        cin>>t;
+        for(auto x:l) if(x.getTitulo()==t) x.mostrar();
     }
 }
 
-// ================= MODULO AHORCADO CORREGIDO =================
-
-string ocultarPalabra(string palabra, const vector<char>& usadas){
-    string resultado = "";
-    for(char c : palabra){
-        if(c == ' ') { resultado += "  "; continue; }
-        bool encontrada = false;
-        for(char u : usadas) { if(tolower(u) == tolower(c)) encontrada = true; }
-        resultado += (encontrada ? c : '_');
-        resultado += " ";
-    }
-    return resultado;
+// opción de historial
+void historialUsuario(vector<PrestamoBiblioteca>& p){
+    string c;
+    cout<<"Cedula: ";
+    cin>>c;
+    for(auto x:p) if(x.getCedula()==c) x.mostrar();
 }
 
-void jugarAhorcado(vector<Libro>& libros, vector<string>& bloqueados) {
-    if(libros.empty()){ cout << "Registre libros primero.\n"; return; }
-    
-    int idx = rand() % libros.size();
-    string palabra = libros[idx].getTitulo();
+// juego del ahorcado
+
+string ocultar(string palabra, vector<char> usadas){
+    string r="";
+    for(char c:palabra){
+        bool ok=false;
+        for(char u:usadas) if(u==c) ok=true;
+
+        if(ok) r+=c;
+        else r+='_';
+
+        r+=' ';
+    }
+    return r;
+}
+
+void ahorcado(vector<Libro>& libros){
+    if(libros.empty()){
+        cout<<"No hay libros\n";
+        return;
+    }
+
+    int dificultad;
+    cout<<"1. Facil (titulos)\n2. Dificil (terminos)\nOpcion: ";
+    cin>>dificultad;
+
+    vector<string> extra={"multa","reserva","catalogo","sancion"};
+
+    string palabra;
+    string categoria;
+
+    if(dificultad==1){
+        int i=rand()%libros.size();
+        palabra=libros[i].getTitulo();
+        categoria=libros[i].getArea();
+    }else{
+        int i=rand()%extra.size();
+        palabra=extra[i];
+        categoria="Terminos bibliotecarios";
+    }
+
     vector<char> usadas;
-    int intentos = 5;
+    int intentos=6;
+    int puntaje=0;
 
-    cout << "\n--- AHORCADO BIBLIOTECARIO ---\n";
-    cout << "Categoria: " << libros[idx].getArea() << endl;
+    cout<<"\nCategoria: "<<categoria<<endl;
 
-    while(intentos > 0) {
-        string actual = ocultarPalabra(palabra, usadas);
-        cout << "\nPalabra: " << actual << endl;
-        
-        // CORRECCION: Si ya no hay guiones, ganaste y salimos antes de pedir letra
-        if(actual.find('_') == string::npos) {
-            cout << "FELICIDADES! Ganaste y evitaste el bloqueo.\n";
-            return;
+    while(intentos>0){
+        cout<<"\nPalabra: "<<ocultar(palabra,usadas)<<endl;
+        cout<<"Intentos: "<<intentos<<endl;
+        cout<<"Letra: ";
+
+        char l;
+        cin>>l;
+
+        usadas.push_back(l);
+
+        bool acierto=false;
+        for(char c:palabra){
+            if(c==l) acierto=true;
         }
 
-        cout << "Intentos: " << intentos << " | Ingrese letra: ";
-        char letra; cin >> letra;
-        usadas.push_back(letra);
-
-        if(palabra.find(tolower(letra)) == string::npos && palabra.find(toupper(letra)) == string::npos) {
+        if(acierto){
+            cout<<"Correcto\n";
+            puntaje+=5;
+        }else{
+            cout<<"Incorrecto\n";
             intentos--;
-            cout << "Letra incorrecta!\n";
-        } else {
-            cout << "Bien hecho!\n";
+            puntaje-=2;
+            if(puntaje<0) puntaje=0;
+        }
+
+        if(ocultar(palabra,usadas).find('_')==string::npos){
+            cout<<"\nGANASTE\n";
+            break;
         }
     }
 
-    cout << "\nPERDISTE. La palabra era: " << palabra << endl;
-    string ci;
-    do {
-        cout << "Ingrese cedula (10 digitos) para aplicar BLOQUEO: ";
-        cin >> ci;
-        if(!validarCedula(ci)) cout << "ERROR: Cedula invalida.\n";
-    } while(!validarCedula(ci));
-    
-    bloqueados.push_back(ci);
-    cout << "Usuario bloqueado temporalmente por fallar el modulo.\n";
+    if(intentos==0){
+        cout<<"\nPERDISTE. La palabra era: "<<palabra<<endl;
+    }
+
+    cout<<"Puntaje final: "<<puntaje<<endl;
 }
 
-// ================= MAIN =================
-
+// uso del main
 int main(){
     srand(time(0));
-    vector<Libro> inventario;
-    vector<PrestamoBiblioteca> registro;
-    vector<string> bloqueados;
+
+    vector<Libro> libros;
+    vector<PrestamoBiblioteca> prestamos;
+
     int op;
 
     do{
-        cout << "\n--- SISTEMA BIBLIOTECA - UTA ---\n";
-        cout << "1. Registrar Libro\n2. Prestamo\n3. Devolucion\n4. Reporte General\n";
-        cout << "5. Ordenar por Deuda (Manual)\n6. Total Multas (Recursivo)\n7. MODULO AHORCADO\n8. Salir\nOpcion: ";
-        cin >> op;
+        cout<<"\n===== SISTEMA BIBLIOTECA =====\n";
+        cout<<"1. Registrar libro\n";
+        cout<<"2. Prestamo\n";
+        cout<<"3. Devolucion\n";
+        cout<<"4. Mostrar datos\n";
+        cout<<"5. Buscar\n";
+        cout<<"6. Reportes\n";
+        cout<<"7. Ahorcado\n";
+        cout<<"8. Salir\n";
+        cout<<"Opcion: ";
+        cin>>op;
 
         if(op==1){
-            string c, t, a; int cant;
-            cout << "Cod: "; cin >> c; 
-            cout << "Titulo: "; cin.ignore(); getline(cin, t);
-            cout << "Area: "; getline(cin, a); 
-            cout << "Cantidad: "; cin >> cant;
-            inventario.push_back(Libro(c, t, a, cant, cant));
-        }
-        else if(op==2){
-            string c_lib, ci;
-            cout << "Cod Libro: "; cin >> c_lib; 
-            do {
-                cout << "Cedula (10 digitos): "; cin >> ci;
-            } while(!validarCedula(ci));
-            
-            bool estaBloqueado = false;
-            for(string b : bloqueados) if(b == ci) estaBloqueado = true;
+            string c,t,a;
+            int e,d;
 
-            for(auto &l : inventario){
-                if(l.getCodigo() == c_lib){
-                    if(prestarLibro(l.getDisponibles(), estaBloqueado)){
+            cout<<"Codigo: "; cin>>c;
+            cout<<"Titulo: "; cin>>t;
+            cout<<"Area: "; cin>>a;
+            cout<<"Ejemplares: "; cin>>e;
+            cout<<"Disponibles: "; cin>>d;
+
+            libros.push_back(Libro(c,t,a,e,d));
+        }
+
+        if(op==2){
+            string c,ce;
+            cout<<"Codigo libro: "; cin>>c;
+            cout<<"Cedula: "; cin>>ce;
+
+            for(auto &l:libros){
+                if(l.getCodigo()==c){
+                    if(prestarLibro(l.getDisponibles(),false)){
                         l.setDisponibles(l.getDisponibles()-1);
-                        registro.push_back(PrestamoBiblioteca(c_lib, ci));
-                        cout << "Prestamo exitoso!\n";
-                    } else {
-                        string razon = estaBloqueado ? "USUARIO BLOQUEADO" : "SIN STOCK (RESERVADO)";
-                        cout << "Denegado: " << razon << endl;
-                        registro.push_back(PrestamoBiblioteca(c_lib, ci, 0, false, true));
+                        prestamos.push_back(PrestamoBiblioteca(c,ce));
+                        cout<<"Prestamo realizado\n";
+                    }else{
+                        prestamos.push_back(PrestamoBiblioteca(c,ce,0,false,true));
+                        cout<<"No disponible -> Reserva\n";
                     }
                 }
             }
         }
-        else if(op==3){
-            string ci; int dias;
-            cout << "Cedula: "; cin >> ci; 
-            cout << "Dias retraso: "; cin >> dias;
-            for(auto &p : registro){
-                if(p.getCedula() == ci && !p.isDevuelto()){
-                    p.setMulta(calcularMulta(dias));
+
+        if(op==3){
+            string ce;
+            int r;
+
+            cout<<"Cedula: "; cin>>ce;
+            cout<<"Retraso: "; cin>>r;
+
+            for(auto &p:prestamos){
+                if(p.getCedula()==ce){
+                    double m=calcularMulta(r);
+                    p.setMulta(m);
                     p.setDevuelto(true);
-                    cout << "Devuelto. Multa generada: $" << p.getMulta() << endl;
+                    cout<<"Multa: "<<m<<endl;
                 }
             }
         }
-        else if(op==4){
-            cout << "\n--- INVENTARIO ---\n"; for(auto l : inventario) l.mostrar();
-            cout << "\n--- REGISTROS ---\n"; for(auto p : registro) p.mostrar();
+
+        if(op==4){
+            cout<<"\n--- LIBROS ---\n";
+            for(auto l:libros) l.mostrar();
+
+            cout<<"\n--- PRESTAMOS ---\n";
+            for(auto p:prestamos) p.mostrar();
         }
-        else if(op==5){
-            ordenarPorMulta(registro);
-            cout << "Datos ordenados por deuda exitosamente.\n";
+
+        if(op==5){
+            buscarLibro(libros);
         }
-        else if(op==6){
-            cout << "Deuda total acumulada: $" << totalMultasRecursivo(registro, 0) << endl;
+
+        if(op==6){
+            ordenarMultas(prestamos);
+            cout<<"Total multas: "<<totalMultas(prestamos,0)<<endl;
+            historialUsuario(prestamos);
         }
-        else if(op==7){
-            jugarAhorcado(inventario, bloqueados);
+
+        if(op==7){
+            ahorcado(libros);
         }
-    } while(op != 8);
+
+    }while(op!=8);
 
     return 0;
 }
