@@ -1,0 +1,52 @@
+Análisis del problema
+Se pide implementar un sistema básico de biblioteca universitaria con:
+• Gestión de libros (código, título, área, ejemplares, disponibles, estado).
+• Préstamos/devoluciones con cálculo de multas.
+• Reservas cuando no hay ejemplares.
+• Búsquedas y ordenamientos por demanda/deuda.
+• Historial por usuario y reporte de deudas.
+• Integración con un juego del Ahorcado usando títulos, áreas, sanciones, etc.
+Además, hay un fragmento de código defectuoso que debe ser depurado.
+2. Variables de Entrada, Proceso y Salida
+ENTRADA
+Registro de Libros
+
+Código: string
+
+Título: string
+
+Área: string
+
+Ejemplares: int
+
+Disponibles: int
+
+Préstamo
+
+Código libro: string
+
+Cédula usuario: string
+
+PROCESO
+Devolución
+
+Cédula usuario: string
+
+Días de retraso: int
+
+Búsqueda
+
+Opción (1=Código, 2=Título): int
+
+Código o Título: string
+
+SALIDA
+Historial
+
+Cédula usuario: string
+
+Juego Ahorcado
+
+Dificultad (1=Fácil, 2=Difícil): int
+
+Letra: char
