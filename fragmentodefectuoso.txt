@@ -1,0 +1,23 @@
+Fragmento defectuoso para depurar y justificarbool prestarLibro(int disponibles, bool bloqueado){
+if(disponibles > 0 || bloqueado == false){
+disponibles--;
+return true;
+}
+return false;
+}
+
+CODIGO CORREGIDO
+
+
+bool prestarLibro(int &disponibles, bool bloqueado){
+if(disponibles > 0 && bloqueado == false){
+disponibles--;
+return true;
+}
+return false;
+}
+
+
+JUSTIFICACIÓN
+El código original tenía dos errores. Primero, usaba el operador || (OR), lo que permitía prestar el libro incluso si no había disponibles o si el usuario estaba bloqueado. Esto es esta mal diseñado, ya que ambas condiciones deben cumplirse, por lo que le cambiamos a && (AND).
+También hay otro error, el parámetro “disponibles” se pasaba por valor, por lo que al disminuirlo no se actualizaba el valor real. Se corrigió pasándolo por referencia (&) para que el cambio afecte directamente al stock disponible.

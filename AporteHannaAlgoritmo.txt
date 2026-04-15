@@ -1,0 +1,44 @@
+
+PSEUDOCODIGO (PSEINT)
+Algoritmo paso a paso
+Inicio
+Mostrar menú principal (Registrar, Préstamo, Devolución, Reportes, Juego, Salir)
+Si escoge Registrar libro
+a. Pedir código, título y área
+b. Pedir cantidad total de ejemplares y disponibles
+c. Guardar en la base de datos de libros
+Si escoge Préstamo
+a. Pedir código del libro y cédula del usuario
+b. Verificar si hay unidades disponibles
+c. Si hay: Restar 1 al stock y marcar como prestado
+d. Si no hay: Registrar como reserva
+Si escoge Devolución
+a. Pedir cédula del usuario
+b. Pedir días de retraso en la entrega
+c. Calcular multa: 
+d
+í
+a
+s
+×
+0.75
+
+d. Marcar préstamo como devuelto y sumar 1 al stock
+Si escoge Mostrar datos
+a. Listar todos los libros registrados
+b. Listar todos los préstamos y reservas realizados
+Si escoge Buscar
+a. Pedir si desea buscar por código o por título
+b. Mostrar la información del libro encontrado
+Si escoge Reportes:
+a. Ordenar la lista de préstamos de mayor a menor multa
+b. Sumar todas las multas de forma recursiva
+c. Mostrar el historial completo por cédula de usuario
+Si escoge Ahorcado:
+a. Pedir dificultad (Fácil/Dificil)
+b. Seleccionar palabra secreta según dificultad
+c. Pedir letra por letra hasta completar palabra o agotar 6 intentos
+d. Sumar o restar puntaje según aciertos
+Si escoge Salir:
+a. Finalizar el programa
+Fin

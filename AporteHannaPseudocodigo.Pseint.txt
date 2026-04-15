@@ -1,0 +1,149 @@
+Algoritmo SistemaBiblioteca
+
+// Dimensiones máximas para los arreglos (Simulando los vectores de C++)
+Dimension lib_codigo[100], lib_titulo[100], lib_area[100], lib_estado[100]
+Dimension lib_ejemplares[100], lib_disponibles[100]
+Definir n_libros Como Entero
+n_libros <- 0
+
+Dimension pre_codLibro[200], pre_cedula[200]
+Dimension pre_multa[200], pre_devuelto[200], pre_reservado[200]
+Definir n_prestamos Como Entero
+n_prestamos <- 0
+
+Definir opcion, i, j, r, dif Como Entero
+Definir c, t, a, ce Como Cadena
+Definir m Como Real
+
+Repetir
+    Escribir ""
+    Escribir "===== SISTEMA BIBLIOTECA ====="
+    Escribir "1. Registrar libro"
+    Escribir "2. Prestamo"
+    Escribir "3. Devolucion"
+    Escribir "4. Mostrar datos"
+    Escribir "5. Buscar"
+    Escribir "6. Reportes (Multas)"
+    Escribir "7. Ahorcado"
+    Escribir "8. Salir"
+    Escribir "Opcion: " Sin Saltar
+    Leer opcion
+    
+    Segun opcion Hacer
+        1: // REGISTRAR LIBRO
+            n_libros <- n_libros + 1
+            Escribir "Codigo: " Sin Saltar; Leer lib_codigo[n_libros]
+            Escribir "Titulo: " Sin Saltar; Leer lib_titulo[n_libros]
+            Escribir "Area: " Sin Saltar; Leer lib_area[n_libros]
+            Escribir "Ejemplares: " Sin Saltar; Leer lib_ejemplares[n_libros]
+            Escribir "Disponibles: " Sin Saltar; Leer lib_disponibles[n_libros]
+            lib_estado[n_libros] <- "Disponible"
+            
+        2: // PRESTAMO
+            Escribir "Codigo libro: " Sin Saltar; Leer c
+            Escribir "Cedula: " Sin Saltar; Leer ce
+            Definir encontrado Como Logico
+            encontrado <- Falso
+            Para i <- 1 Hasta n_libros Hacer
+                Si lib_codigo[i] = c Entonces
+                    encontrado <- Verdadero
+                    n_prestamos <- n_prestamos + 1
+                    pre_codLibro[n_prestamos] <- c
+                    pre_cedula[n_prestamos] <- ce
+                    pre_multa[n_prestamos] <- 0
+                    
+                    Si lib_disponibles[i] > 0 Entonces
+                        lib_disponibles[i] <- lib_disponibles[i] - 1
+                        pre_devuelto[n_prestamos] <- 0 // 0 = No
+                        pre_reservado[n_prestamos] <- 0
+                        Escribir "Prestamo realizado"
+                    Sino
+                        pre_devuelto[n_prestamos] <- 0
+                        pre_reservado[n_prestamos] <- 1 // 1 = Si
+                        Escribir "No disponible -> Reserva"
+                    FinSi
+                FinSi
+            FinPara
+            Si No encontrado Entonces Escribir "Libro no encontrado"; FinSi
+            
+        3: // DEVOLUCION
+            Escribir "Cedula: " Sin Saltar; Leer ce
+            Escribir "Dias de retraso: " Sin Saltar; Leer r
+            Para i <- 1 Hasta n_prestamos Hacer
+                Si pre_cedula[i] = ce Y pre_devuelto[i] = 0 Entonces
+                    m <- r * 0.75
+                    pre_multa[i] <- m
+                    pre_devuelto[i] <- 1
+                    Escribir "Multa calculada: $", m
+                    // Devolver stock al libro
+                    Para j <- 1 Hasta n_libros Hacer
+                        Si lib_codigo[j] = pre_codLibro[i] Entonces
+                            lib_disponibles[j] <- lib_disponibles[j] + 1
+                        FinSi
+                    FinPara
+                FinSi
+            FinPara
+            
+        4: // MOSTRAR DATOS
+            Escribir "--- LIBROS ---"
+            Para i <- 1 Hasta n_libros Hacer
+                Escribir "Cod: ", lib_codigo[i], " | Titulo: ", lib_titulo[i], " | Disp: ", lib_disponibles[i]
+            FinPara
+            Escribir "--- PRESTAMOS ---"
+            Para i <- 1 Hasta n_prestamos Hacer
+                Escribir "Libro: ", pre_codLibro[i], " | Cedula: ", pre_cedula[i], " | Multa: $", pre_multa[i]
+            FinPara
+            
+        5: // BUSCAR
+            Escribir "1. Por Codigo  2. Por Titulo: " Sin Saltar; Leer r
+            Si r = 1 Entonces
+                Escribir "Ingrese Codigo: " Sin Saltar; Leer c
+                Para i <- 1 Hasta n_libros Hacer
+                    Si lib_codigo[i] = c Entonces Escribir lib_titulo[i], " (", lib_area[i], ")"; FinSi
+                FinPara
+            Sino
+                Escribir "Ingrese Titulo: " Sin Saltar; Leer t
+                Para i <- 1 Hasta n_libros Hacer
+                    Si lib_titulo[i] = t Entonces Escribir lib_codigo[i], " (", lib_area[i], ")"; FinSi
+                FinPara
+            FinSi
+            
+        6: // REPORTES (BURBUJA Y SUMA)
+            // Ordenar por burbuja (Multas de mayor a menor)
+            Para i <- 1 Hasta n_prestamos-1 Hacer
+                Para j <- 1 Hasta n_prestamos-i Hacer
+                    Si pre_multa[j] < pre_multa[j+1] Entonces
+                        // Intercambio manual de todas las columnas del prestamo
+                        temp_m <- pre_multa[j]; pre_multa[j] <- pre_multa[j+1]; pre_multa[j+1] <- temp_m
+                        temp_c <- pre_cedula[j]; pre_cedula[j] <- pre_cedula[j+1]; pre_cedula[j+1] <- temp_c
+                        temp_l <- pre_codLibro[j]; pre_codLibro[j] <- pre_codLibro[j+1]; pre_codLibro[j+1] <- temp_l
+                    FinSi
+                FinPara
+            FinPara
+            // Sumar total
+            Definir total_m Como Real; total_m <- 0
+            Para i <- 1 Hasta n_prestamos Hacer total_m <- total_m + pre_multa[i]; FinPara
+            Escribir "Total recaudado en multas: $", total_m
+            
+        7: // AHORCADO SIMPLIFICADO
+            Si n_libros = 0 Entonces
+                Escribir "No hay libros para jugar."
+            Sino
+                Escribir "1. Facil (Titulos) 2. Dificil: " Sin Saltar; Leer dif
+                Definir p_secreta, p_mostrar Como Cadena
+                Si dif = 1 Entonces
+                    p_secreta <- lib_titulo[1] // Simplificado al primer libro
+                Sino
+                    p_secreta <- "multa"
+                FinSi
+                
+                Escribir "Pista: La palabra tiene ", Longitud(p_secreta), " letras."
+                Escribir "Ahorcado iniciado (Version simplificada)..."
+                // (La lógica completa de strings en PSeInt es limitada, 
+                // se sugiere implementar una adivinanza simple aquí)
+            FinSi
+    FinSegun
+    
+Hasta Que opcion = 8
+FinAlgoritmo
+
